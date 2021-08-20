@@ -27,12 +27,12 @@ const PersonForm = (props) => {
     )
 }
 
-const Persons = ({personsToShow}) => {
+const Persons = ({personsToShow, handleDelete}) => {
 
     return (
         <ul>
             {personsToShow.map((person, i) =>
-                <div key={i}>{person.name} {person.number}</div>
+                <div key={i}>{person.name} {person.number} <button onClick={() => handleDelete(person.id)}>delete</button></div>
             )}
         </ul>
     )
@@ -84,6 +84,14 @@ const App = () => {
             })
     }
 
+    const deleteName = id => {
+        personService
+            .remove(id)
+            .then(returnedData => {
+                setPersons(persons.filter(person => person.id !== id))
+            })
+    }
+
 
     return (
         <div>
@@ -98,7 +106,7 @@ const App = () => {
                 newNumber={newNumber}
             />
             <h2>Numbers</h2>
-            <Persons personsToShow={personsToShow} />
+            <Persons personsToShow={personsToShow} handleDelete={deleteName}/>
         </div>
     )
 }
