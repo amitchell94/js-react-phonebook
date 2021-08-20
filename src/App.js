@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react'
-import axios from 'axios'
 import personService from "./services/persons";
 
 const Filter = (props) => {
@@ -85,11 +84,13 @@ const App = () => {
     }
 
     const deleteName = id => {
-        personService
-            .remove(id)
-            .then(returnedData => {
-                setPersons(persons.filter(person => person.id !== id))
-            })
+        if (window.confirm(`Delete ${persons.find(person => person.id === id).name}?`)) {
+            personService
+                .remove(id)
+                .then(returnedData => {
+                    setPersons(persons.filter(person => person.id !== id))
+                })
+        }
     }
 
 
