@@ -1,16 +1,22 @@
 import React, {useEffect, useState} from 'react'
 import personService from "./services/persons";
 
-const Notification = ({message}) => {
-    if (message === null) {
+const Notification = ({notificationObj}) => {
+    if (notificationObj.text === "") {
         return null
     }
 
+    let style = "errorMessage"
+    if (notificationObj.type === "success") {
+        style = "successMessage"
+    }
+
     return (
-        <div className="successMessage">
-            {message}
+        <div className={style}>
+            {notificationObj.text}
         </div>
     )
+
 }
 
 const Filter = (props) => {
@@ -43,7 +49,9 @@ const Persons = ({personsToShow, handleDelete}) => {
     return (
         <ul>
             {personsToShow.map((person, i) =>
-                <div key={i}>{person.name} {person.number} <button onClick={() => handleDelete(person.id)}>delete</button></div>
+                <div key={i}>{person.name} {person.number}
+                    <button onClick={() => handleDelete(person.id)}>delete</button>
+                </div>
             )}
         </ul>
     )
@@ -54,7 +62,7 @@ const App = () => {
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
     const [newFilter, setNewFilter] = useState('')
-    const [messageText, setMessageText] = useState(null)
+    const [newNotification, setNotification] = useState({text: "", type: null})
 
     useEffect(() => {
         personService
@@ -62,7 +70,7 @@ const App = () => {
             .then(initialPersons => {
                 setPersons(initialPersons)
             })
-    },[])
+    }, [])
 
     const handleNameChange = (event) => {
         setNewName(event.target.value)
@@ -85,15 +93,21 @@ const App = () => {
             if (window.confirm(`${newName} is already added to the phonebook. Replace the old number with this new one?`)) {
                 const personObject = {name: newName, number: newNumber}
                 personService
-                    .update(persons.find(p => p.name === newName).id,personObject)
+                    .update(persons.find(p => p.name === newName).id, personObject)
                     .then(returnedPerson => {
                         setPersons(persons.map(p => p.name !== newName ? p : returnedPerson))
                         setNewName('')
                         setNewNumber('')
-                    })
-                    setMessageText(`The number for ${newName} has successfully been updated`)
-                    setTimeout(() => {setMessageText(null)}, 5000)
-                return
+
+                        setNotification({text: `The number for ${newName} has successfully been updated`, type: "success"})
+                        setTimeout(() => {setNotification({text: "", type: null})}, 5000)
+                        return
+                    }).catch(error => {
+
+                    setNotification({text: `The contact ${newName} has already been removed from the server`, type: "error"})
+                    setTimeout(() => {setNotification({text: "", type: null})}, 5000)
+                })
+
             } else {
                 return
             }
@@ -106,9 +120,10 @@ const App = () => {
                 setPersons(persons.concat(returnedPerson))
                 setNewName('')
                 setNewNumber('')
+
+                setNotification({text: `The number for ${newName} has successfully been added`, type: "success"})
+                setTimeout(() => {setNotification({text: "", type: null})}, 5000)
             })
-        setMessageText(`The number for ${newName} has successfully been added`)
-        setTimeout(() => {setMessageText(null)}, 5000)
     }
 
     const deleteName = id => {
@@ -124,7 +139,7 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
-            <Notification message={messageText} />
+            <Notification notificationObj={newNotification} />
             <Filter onChange={handleFilterChange} newFilter={newFilter}/>
             <h2>Add new number</h2>
             <PersonForm
