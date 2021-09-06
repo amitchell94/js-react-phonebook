@@ -1,6 +1,8 @@
 # Simple Phonebook Web App using React
 A simple app to store contacts and their phone numbers. Completed as part of the [Full Stack Open Course](https://fullstackopen.com/en).
 
+Available here: [https://react-phonebook-demo-js.herokuapp.com/](https://react-phonebook-demo-js.herokuapp.com/)
+
 ## Getting Started
 
 You can get started by cloning the project to your local machine:
