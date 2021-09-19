@@ -92,6 +92,8 @@ const App = () => {
         if (persons.some((person) => person.name === newName)) {
             if (window.confirm(`${newName} is already added to the phonebook. Replace the old number with this new one?`)) {
                 const personObject = {name: newName, number: newNumber}
+                console.log(personObject)
+                console.log(persons.find(p => p.name === newName).id)
                 personService
                     .update(persons.find(p => p.name === newName).id, personObject)
                     .then(returnedPerson => {
@@ -101,29 +103,26 @@ const App = () => {
 
                         setNotification({text: `The number for ${newName} has successfully been updated`, type: "success"})
                         setTimeout(() => {setNotification({text: "", type: null})}, 5000)
-                        return
                     }).catch(error => {
 
                     setNotification({text: `The contact ${newName} has already been removed from the server`, type: "error"})
                     setTimeout(() => {setNotification({text: "", type: null})}, 5000)
                 })
 
-            } else {
-                return
             }
+        } else {
+            const personObject = {name: newName, number: newNumber}
+            personService
+                .create(personObject)
+                .then(returnedPerson => {
+                    setPersons(persons.concat(returnedPerson))
+                    setNewName('')
+                    setNewNumber('')
+
+                    setNotification({text: `The number for ${newName} has successfully been added`, type: "success"})
+                    setTimeout(() => {setNotification({text: "", type: null})}, 5000)
+                })
         }
-
-        const personObject = {name: newName, number: newNumber}
-        personService
-            .create(personObject)
-            .then(returnedPerson => {
-                setPersons(persons.concat(returnedPerson))
-                setNewName('')
-                setNewNumber('')
-
-                setNotification({text: `The number for ${newName} has successfully been added`, type: "success"})
-                setTimeout(() => {setNotification({text: "", type: null})}, 5000)
-            })
     }
 
     const deleteName = id => {
